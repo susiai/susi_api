@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Load a model and save it as prepared model for finetuning")
     parser.add_argument("--port", default="8080", type=str, help="server port, default 8080")
     parser.add_argument("--host", default="0.0.0.0", type=str, help="bind address, default 0.0.0.0")
-    parser.add_argument("--openai_api_key", default="", type=str, help="OpenAI API key")
+    parser.add_argument("--openai_api_key", default=os.environ.get('OPENAI_API_KEY'), type=str, help="OpenAI API key")
     args = parser.parse_args()
 
     openai_api_key = args.openai_api_key

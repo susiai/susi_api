@@ -1,3 +1,4 @@
 flask
 waitress
 requests_toolbelt
+openai-whisper==20230314
