@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Transcription Test</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+        .flashing {
+            animation: flash 1s infinite;
+        }
+        @keyframes flash {
+            50% {opacity: 0;}
+            100% {opacity: 1;}
+        }
+    </style>
+</head>
+<body>
+    <button id="startBtn">Start Recording</button>
+    <span id="recordingIndicator" class="hidden">RECORDING</span>
+    <br><br>
+    <select id="modelSelect">
+        <option value="whisper-1">whisper-1</option>
+        <option value="tiny">tiny</option>
+        <option value="base" selected>base</option>
+        <option value="small">small</option>
+        <option value="medium">medium</option>
+        <option value="large">large</option>
+    </select>
+    <br><br>
+    <textarea id="resultBox" cols="50" rows="10"></textarea>
+
+    <script>
+let audioContext = new (window.AudioContext || window.webkitAudioContext)();
+let analyser = audioContext.createAnalyser();
+let silence_threshold = 0.01;
+let silence_timer = 0;
+
+document.getElementById('startBtn').addEventListener('click', function() {
+    let recordingIndicator = document.getElementById('recordingIndicator');
+    recordingIndicator.classList.remove('hidden');
+    recordingIndicator.classList.add('flashing');
+
+    navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+        let mediaRecorder = new MediaRecorder(stream);
+        let audioChunks = [];
+
+        let source = audioContext.createMediaStreamSource(stream);
+        source.connect(analyser);
+        analyser.fftSize = 512;
+        let dataArray = new Uint8Array(analyser.fftSize);
+
+        mediaRecorder.addEventListener("dataavailable", event => {
+            audioChunks.push(event.data);
+        });
+
+        mediaRecorder.addEventListener("stop", () => {
+            // stop the stream after the media recorder has stopped
+            stream.getTracks().forEach(track => track.stop());
+
+            recordingIndicator.classList.add('hidden');
+            recordingIndicator.classList.remove('flashing');
+
+            let audioBlob = new Blob(audioChunks);
+            let audioUrl = URL.createObjectURL(audioBlob);
+            let audio = new Audio(audioUrl);
+            audio.play();
+
+            let formData = new FormData();
+            formData.append("file", audioBlob, "recordedAudio.wav");
+
+            let model = document.getElementById('modelSelect').value;
+            formData.append("model", model);
+
+            fetch("http://localhost:8080/api/audio/voice/transcriptions", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('resultBox').value = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                document.getElementById('resultBox').value = `An error occurred: ${error.message}`;
+            });
+        });
+
+        mediaRecorder.start();
+
+        let checkSilence = setInterval(() => {
+            analyser.getByteTimeDomainData(dataArray);
+            let avg = dataArray.reduce((p, c) => p + Math.abs(c - 128), 0) / analyser.fftSize;
+            if (avg < silence_threshold) silence_timer++;
+            else silence_timer = 0;
+
+            if (silence_timer > 2 * (1000 / 50)) {
+                clearInterval(checkSilence);
+                mediaRecorder.stop();
+            }
+        }, 50);
+    });
+});
+    </script>
+</body>
+</html>
