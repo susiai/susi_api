@@ -66,3 +66,26 @@ cd test/src
 This will use one of the provided test audio in `test/wav` to make a audio
 transscription.
 
+## Deployment using Docker
+
+There is a Dockerfile included which encapsulates the server into a docker
+image. During the creation of the image two voice decoder models are pre-
+loaded (tiny and base) so that these models are present when the image is
+deployed. You can make the image with
+
+```
+docker build -t susi_api .
+```
+
+The image can then be started with
+
+```
+docker run -d -p 8080:8080 -e OPENAI_API_KEY=<apikey> --name susi_api susi_api
+```
+
+..if a OpenAI API key shall be submitted. Otherwise you can just omit
+the key:
+
+```
+docker run -d -p 8080:8080 --name susi_api susi_api
+```

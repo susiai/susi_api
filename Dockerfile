@@ -15,6 +15,7 @@ RUN \
     export PYTHONHTTPSVERIFY=0 && \
     pip3 install --upgrade pip && \
     pip3 install --trusted-host=pypi.python.org --trusted-host=pypi.org --trusted-host=files.pythonhosted.org --no-cache-dir -r requirements.txt && \
+    python3 -W ignore -c "import whisper; whisper.load_model('tiny'); whisper.load_model('base')" && \
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
 EXPOSE 8080
