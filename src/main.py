@@ -1,17 +1,17 @@
-import os, sys, argparse, logging, requests
+import io, os, sys, argparse, logging, requests, tempfile
 from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS, cross_origin
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 from waitress import serve
 import whisper
 
 openai_api_key = ""
-
 app = Flask(__name__)
-
+CORS(app)
 
 # call i.e.:
-# curl -X POST http://localhost:8080/api/audio/transcriptions -H "Content-Type: multipart/form-data" -F file="@test.wav" -F model="whisper-1"
-@app.route('/api/audio/transcriptions', methods=['POST'])
+# curl -X POST http://localhost:8080/api/audio/voice/transcriptions -H "Content-Type: multipart/form-data" -F file="@test.wav" -F model="whisper-1"
+@app.route('/api/audio/voice/transcriptions', methods=['POST'])
 def voice_recognition():
     if not request.files:
         return jsonify({'error': 'No file provided'})
@@ -34,20 +34,26 @@ def voice_recognition():
         response = requests.post("https://api.openai.com/v1/audio/transcriptions", headers=headers, data=payload)
         result = response.json()
     else:
+        # patch model name in case no api key is present
+        if model_name == 'whisper-1': model_name = 'tiny'
+
         # Load the offline model
         model = whisper.load_model(model_name)
+
         # Save the received audio file temporarily to disk
-        audio_file_path = "./temp_audio.wav"
-        with open(audio_file_path, "wb") as temp_audio_file:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_audio_file:
             temp_audio_file.write(audio_data)
-        # Transcribe using the offline model
-        result = model.transcribe(audio_file_path)
+            temp_audio_file.flush()
+
+            # Transcribe using the offline model
+            result = model.transcribe(temp_audio_file.name)
+
         result = {'text': result['text']}
+        
+    return result
 
-    return jsonify(result)
-
-
-
+# run this program with
+# python3 src/main.py --openai_api_key <apikey>
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Load a model and save it as prepared model for finetuning")
     parser.add_argument("--port", default="8080", type=str, help="server port, default 8080")
