@@ -1,0 +1,7 @@
+.DS_Store
+*~
+test/.DS_Store
+test/bin/*~
+src/audio/__pycache__/
+src/system/__pycache__/
+src/text/__pycache__/
