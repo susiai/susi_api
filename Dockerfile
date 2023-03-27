@@ -11,7 +11,7 @@ COPY src/ ./app/src/
 
 WORKDIR /app
 RUN \
-    apt-get update && apt-get install -y ca-certificates bash build-essential ffmpeg && \
+    apt-get update && apt-get install -y ca-certificates bash ffmpeg net-tools sysstat procps && \
     export PYTHONHTTPSVERIFY=0 && \
     pip3 install --upgrade pip && \
     pip3 install --trusted-host=pypi.python.org --trusted-host=pypi.org --trusted-host=files.pythonhosted.org --no-cache-dir -r requirements.txt && \

@@ -1,5 +1,6 @@
 flask
 flask_cors
 waitress
+psutil
 requests_toolbelt
 openai-whisper==20230314
