@@ -1,20 +1,46 @@
 import sys
 sys.path.insert(0, './src')
 
-import os, argparse
+import os, argparse, logging
 from flask import Flask
 from waitress import serve
 from flask_cors import CORS
 from text.text_service import text_blueprint
 from audio.audio_service import audio_blueprint
+from share.share_service import share_blueprint
 from system.system_service import system_blueprint
 
 openai_api_key = ""
 app = Flask(__name__)
 CORS(app)
 
+# Log the current path(s)
+home_path = os.path.expanduser('~')
+cache_path = os.path.realpath(os.path.join(home_path, ".cache"))
+script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+app_path = os.path.realpath(os.path.join(script_path, ".."))
+data_path = os.path.realpath(os.path.join(app_path, "data"))
+work_path = os.getcwd()
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.debug("Current home path:    %s", home_path)
+logger.debug("Current cache path:   %s", cache_path)
+logger.debug("Current app path:     %s", app_path)
+logger.debug("Current data path:    %s", data_path)
+logger.debug("Current script path:  %s", script_path)
+logger.debug("Current working path: %s", work_path)
+
+app.config['HOME_PATH']   = home_path
+app.config['CACHE_PATH']  = cache_path
+app.config['APP_PATH']    = app_path
+app.config['DATA_PATH']   = data_path
+app.config['SCRIPT_PATH'] = script_path
+app.config['WORK_PATH']   = work_path
+
 app.register_blueprint(text_blueprint)
 app.register_blueprint(audio_blueprint)
+app.register_blueprint(share_blueprint)
 app.register_blueprint(system_blueprint)
 
 if __name__ == '__main__':
