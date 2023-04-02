@@ -1,5 +1,6 @@
 flask
 flask_cors
+flask-httpauth
 waitress
 psutil
 requests_toolbelt

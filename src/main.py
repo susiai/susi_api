@@ -20,6 +20,7 @@ cache_path = os.path.realpath(os.path.join(home_path, ".cache"))
 script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
 app_path = os.path.realpath(os.path.join(script_path, ".."))
 data_path = os.path.realpath(os.path.join(app_path, "data"))
+os.makedirs(data_path, exist_ok=True)
 work_path = os.getcwd()
 
 logging.basicConfig(level=logging.DEBUG)
@@ -47,10 +48,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Load a model and save it as prepared model for finetuning")
     parser.add_argument("--port", default="8080", type=str, help="server port, default 8080")
     parser.add_argument("--host", default="0.0.0.0", type=str, help="bind address, default 0.0.0.0")
-    parser.add_argument("--openai_api_key", default=os.environ.get('OPENAI_API_KEY'), type=str, help="OpenAI API key")
+    parser.add_argument("--susi_api_key", default=os.environ.get('SUSI_API_KEY', default=''), type=str, help="SUSI API key")
+    parser.add_argument("--openai_api_key", default=os.environ.get('OPENAI_API_KEY', default=''), type=str, help="OpenAI API key")
     args = parser.parse_args()
 
-    openai_api_key = args.openai_api_key
-    app.config['OPENAI_API_KEY'] = openai_api_key
+    app.config['SUSI_API_KEY'] = args.susi_api_key
+    app.config['OPENAI_API_KEY'] = args.openai_api_key
 
     serve(app, host=args.host, port=args.port, threads=8)
