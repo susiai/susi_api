@@ -5,10 +5,11 @@ import os, argparse, logging
 from flask import Flask
 from waitress import serve
 from flask_cors import CORS
-from text.text_service import text_blueprint
-from audio.audio_service import audio_blueprint
-from share.share_service import share_blueprint
-from system.system_service import system_blueprint
+from flask_restx import Api
+from text.text_service import api as text_ns
+from audio.audio_service import api as audio_ns
+from share.share_service import api as share_ns
+from system.system_service import api as system_ns
 
 openai_api_key = ""
 app = Flask(__name__)
@@ -39,10 +40,34 @@ app.config['DATA_PATH']   = data_path
 app.config['SCRIPT_PATH'] = script_path
 app.config['WORK_PATH']   = work_path
 
-app.register_blueprint(text_blueprint)
-app.register_blueprint(audio_blueprint)
-app.register_blueprint(share_blueprint)
-app.register_blueprint(system_blueprint)
+api = Api(app, version='1.0', title='susi_api', doc='/api/docs/')
+api.add_namespace(share_ns)
+api.add_namespace(text_ns)
+api.add_namespace(audio_ns)
+api.add_namespace(system_ns)
+
+def check_route_conflicts(app):
+    # Getting all routes and their endpoints
+    routes = [(str(route), route.endpoint) for route in app.url_map.iter_rules()]
+
+    # Check for duplicates
+    routes_str = [route[0] for route in routes]
+    if len(routes_str) != len(set(routes_str)):
+        print("Duplicate routes found.")
+        route_counts = {}
+        for route in routes:
+            if route[0] in route_counts:
+                route_counts[route[0]].append(route[1])
+            else:
+                route_counts[route[0]] = [route[1]]
+
+        duplicates = [(route, endpoints) for route, endpoints in route_counts.items() if len(endpoints) > 1]
+        for dup_route, endpoints in duplicates:
+            print(f"The following route is duplicated: {dup_route}")
+            print("It is defined in these endpoints: ", ", ".join(endpoints))
+
+# Run the conflict check
+check_route_conflicts(app)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Load a model and save it as prepared model for finetuning")

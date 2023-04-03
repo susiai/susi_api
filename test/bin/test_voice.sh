@@ -27,5 +27,6 @@ do
 done
 
 # Speed Tests (time should be less or equal to 30s to be usable):
-# OpenAI Cloud: whisper-1 9s
-# iMac 2015 4GHz 4x i7: tiny 23s, base 30s, small 101s, medium 332s, large 631s
+# OpenAI Cloud: whisper-1 9-15s
+# iMac 2015 4GHz 4x i7   : tiny 23s, base 30s, small 101s, medium 332s, large 631s
+# MacBook Pro M1 Max 2021: tiny  7s, base 11s, small  32s, medium  88s, large 145s

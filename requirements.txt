@@ -1,5 +1,6 @@
 flask
 flask_cors
+flask-restx
 flask-httpauth
 waitress
 psutil

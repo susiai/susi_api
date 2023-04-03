@@ -1,17 +1,23 @@
 import sys, getopt, json, os, time, datetime, psutil
-from flask import Blueprint, request, abort, jsonify, current_app
+from flask import request, abort, jsonify, current_app
+from flask_restx import Namespace, Resource
 
-system_blueprint = Blueprint('system_service', __name__)
+api = Namespace('api/system', description='system operations')
 
 # signal that the application is ready
-@system_blueprint.route('/api/system/ready.json')
-def ready():
-    return jsonify({'health': 'ok'})
+@api.route('/ready.json', methods=['GET'])
+class Ready(Resource):
 
-@system_blueprint.route('/api/system/status.json')
-def status():
-    return jsonify(getMetricsJson())
+    @api.doc('ready')
+    def get(self):
+        return jsonify({'health': 'ok'})
 
+@api.route('/status.json', methods=['GET'])
+class Status(Resource):
+
+    @api.doc('status')
+    def get(self):
+        return jsonify(getMetricsJson())
 
 # tools to extract metrics
 def getHostname():
