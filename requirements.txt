@@ -6,3 +6,5 @@ waitress
 psutil
 requests_toolbelt
 openai-whisper==20230314
+wave
+vosk
