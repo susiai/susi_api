@@ -28,7 +28,8 @@ done
 
 # Speed Tests (time should be less or equal to 30s to be usable):
 # OpenAI Cloud: whisper-1 9-15s
-# Linux i9-9900 RTX 3060 : tiny  5s, base  8s, small  22s, medium  64s, large 129s
-# MacBook Pro M1 Max 2021: tiny  7s, base 11s, small  32s, medium  88s, large 145s
-# Linux i7-8700          : tiny 10s, base 16s, small  49s, medium 134s, large 252s
-# iMac 2015 4GHz 4x i7   : tiny 23s, base 30s, small 101s, medium 332s, large 631s
+# Linux i9-9900 RTX 3060 : tiny  5s, base  8s, small  22s, medium   64s, large  129s
+# MacBook Pro M1 Max 2021: tiny  7s, base 11s, small  32s, medium   88s, large  145s
+# Linux i7-8700          : tiny 10s, base 16s, small  49s, medium  134s, large  252s
+# iMac 2015 4GHz 4x i7   : tiny 23s, base 30s, small 101s, medium  332s, large  631s
+# Mac Pro 2009 12 Core   : tiny 53s, base 96s, small 325s, medium 1019s, large 2015s
