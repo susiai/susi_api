@@ -6,7 +6,7 @@ import os, time, logging, subprocess
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-api = Namespace('', description='File hosting operations')
+api = Namespace('api/data', description='File hosting operations')
 auth = HTTPTokenAuth(scheme='Bearer')
 
 def secure_path(path):
@@ -21,7 +21,6 @@ def verify_token(token):
     elif not susi_api_key:
         return "valid-user"
 
-@api.route('/', methods=['GET'])
 @api.route('/<path:req_path>', methods=['GET', 'POST', 'DELETE'])
 class FileResource(Resource):
 
@@ -30,9 +29,9 @@ class FileResource(Resource):
         data_path = current_app.config['DATA_PATH']
         req_path = secure_path(req_path)
         abs_path = os.path.join(data_path, req_path)
-        #logger.debug("data_path:    %s", data_path)
-        #logger.debug("req_path:     %s", req_path)
-        #logger.debug("abs_path:     %s", abs_path)
+        logger.debug("data_path:    %s", data_path)
+        logger.debug("req_path:     %s", req_path)
+        logger.debug("abs_path:     %s", abs_path)
 
         # Check for directory traversal attempts
         if not os.path.abspath(abs_path).startswith(data_path):

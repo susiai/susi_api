@@ -7,12 +7,12 @@ auth_token="123"  # replace with your actual application key. Can be empty if se
 # if an auth token is set to a non-empty value, the server will require authentication
 # do this by starting the server with python3 src/main.py --susi_api_key 123
 
-dir_path="/test"
+dir_path="/share"
 file_path="test.txt"
 local_file="local_test.txt"
-remote_file="${base_url}${dir_path}/${file_path}"
-index_file="${base_url}${dir_path}/index.json"
-main_index_file="${base_url}/index.json"
+remote_file="${base_url}/api/data${dir_path}/${file_path}"
+index_file="${base_url}/api/data${dir_path}/index.json"
+main_index_file="${base_url}/api/data/index.json"
 
 # Generate a file with a random hash
 echo "$(date +%s | openssl dgst -sha256 | base64 | head -c 32 ; echo)" > ${local_file}
