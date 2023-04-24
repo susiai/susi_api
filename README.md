@@ -24,6 +24,10 @@ functions and more challenging targets become into sight. Even if an
 exponential growth in the named topics become vertical, new topics may appear
 which have not yet reached human-level AI abilities.
 
+To be able to have an easier approach to test the AI functions we also
+provide a drop-in replacement to OpenAI API functions. Therefore we
+re-implement specific OpenAI API endpoints as well.
+
 ## Integration into SUSI
 
 SUSI (the new SUSI) will use this API as intelligent back-end. Since the

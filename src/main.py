@@ -7,7 +7,7 @@ from waitress import serve
 from flask_cors import CORS
 from flask_restx import Api
 from text.text_service import api as text_ns
-from audio.audio_service import api as audio_ns
+from audio.audio_service import api as audio_ns, v1api as v1audio_ns
 from share.share_service import api as share_ns
 from system.system_service import api as system_ns
 
@@ -44,6 +44,7 @@ api = Api(app, version='1.0', title='susi_api', doc='/api/docs/')
 api.add_namespace(share_ns)
 api.add_namespace(text_ns)
 api.add_namespace(audio_ns)
+api.add_namespace(v1audio_ns)
 api.add_namespace(system_ns)
 
 def check_route_conflicts(app):

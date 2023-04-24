@@ -6,26 +6,43 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 import whisper
 from vosk import Model, KaldiRecognizer, SetLogLevel
 
-api = Namespace('api/audio', description='text operations')
+api = Namespace('api/audio', description='audio operations')
+v1api = Namespace('v1/audio', description='audio operations - OpenAI Clone')
 
-@api.route('/voice/transcriptions', methods=['POST'])
+@api.route('/transcriptions', methods=['POST'])
+@v1api.route('/transcriptions', methods=['POST'])
 class VoiceTranscription(Resource):
 
     # call i.e.:
     # curl -X POST http://localhost:8080/api/audio/voice/transcriptions -H "Content-Type: multipart/form-data" -F file="@test.wav" -F model="whisper-1"
     @api.doc('voice_transcriptions')
     def post(self):
-        openai_api_key = current_app.config['OPENAI_API_KEY']
+
+        # check if openai api key is present
+        openai_api_key = request.headers.get('Authorization')
+        if openai_api_key:
+            openai_api_key = openai_api_key.replace('Bearer ', '')
+        else:
+            openai_api_key = current_app.config['OPENAI_API_KEY']
+
+        # in case that openai_api_key is not present,
+        # we fail over to a local whisper model.
+        model_name = request.form.get('model', 'tiny')
+        if not openai_api_key:
+            model_name = 'tiny'
+
+        # check if file is present
         if not request.files:
             return jsonify({'error': 'No file provided'})
-        
         audio_file = request.files['file']
         audio_data = audio_file.read()
         audio_name = audio_file.filename
-        model_name = request.form.get('model', 'tiny')
+
+        # check if model is present and valid
         result = {}
 
         if openai_api_key and model_name == 'whisper-1':
+            # make an online transcription
             headers = {'Authorization': f'Bearer {openai_api_key}'}
             payload = MultipartEncoder(
                 fields={
@@ -45,7 +62,7 @@ class VoiceTranscription(Resource):
             # check the required technology (whisper or vosk)
             if model_name == 'tiny' or model_name == 'base' or model_name == 'small' or model_name == 'medium' or model_name == 'large': 
 
-                # Load the offline model
+                # Load the offline model (it is loaded directly from the internet)
                 model = whisper.load_model(model_name)
 
                 # Save the received audio file temporarily to disk
